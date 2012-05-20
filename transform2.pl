@@ -1,6 +1,6 @@
-# To the extent possible under law, Stefan Kaufmann has waived all copyright and related or neighboring rights to this work. This work is published from: Deutschland. See https://creativecommons.org/publicdomain/zero/1.0/ for details.
-
 #!/usr/bin/perl
+
+# To the extent possible under law, Stefan Kaufmann has waived all copyright and related or neighboring rights to this work. This work is published from: Deutschland. See https://creativecommons.org/publicdomain/zero/1.0/ for details.
 
 use strict;
 use warnings;
@@ -8,6 +8,7 @@ use utf8;
 use Text::CSV;
 
 my $csv = Text::CSV->new({binary=>1});
+my $out;
 
 # Produktbereiche by IDs as from http://www.ulm.de/politik_verwaltung/rathaus/ueberblick.3581.3076,3571,3744,3521,4132,3581.htm (See complete Haushalt of 2012, Anlage 8 for comparison. This is page 498 of the PDF document http://www.ulm.de/statistik/download.php?file=L3NpeGNtcy9tZWRpYS5waHAvMjkvRWNodGF1c2RydWNrJTIwMjAxMiUyMGtvbXBsZXR0LnBkZg==)
 my %pdbId = (
@@ -32,6 +33,9 @@ my %pdbId = (
   "61" => "Allgemeine Finanzwirtschaft"
 );
 
+ open ($out, ">","transformed.csv") or die "something even more terrible happened while opening output files: $!";
+ print $out "Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,Plan 2012,Plan 2011,Ist 2010\n"; # header line of csv output file
+
 foreach my $file (@ARGV) {
  process($file);
 }
@@ -39,9 +43,8 @@ foreach my $file (@ARGV) {
 sub process {
  my $arg = shift;
  open (CSV, "<", "$arg") or die("Could not open inputfile: $!");
- open (my $out, ">","$arg.transformed.csv") or die "something even more terrible happened while opening output files: $!";
+ open ($out, ">>","transformed.csv") or die "something even more terrible happened while opening output files: $!";
 
- print $out "Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,Plan 2012,Plan 2011,Ist 2010\n"; # header line of csv output file
 
  my $document;
  my $pdb;
