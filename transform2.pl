@@ -34,7 +34,7 @@ my %pdbId = (
 );
 
  open ($out, ">","transformed.csv") or die "something even more terrible happened while opening output files: $!";
- print $out "Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,Plan 2012,Plan 2011,Ist 2010\n"; # header line of csv output file
+ print $out "uid,Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,Plan 2012\n"; # header line of csv output file
 
 foreach my $file (@ARGV) {
  process($file);
@@ -82,7 +82,7 @@ sub process {
       $vwvName = $columns[3];
       }
 
-      print $out "$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],$columns[5],$columns[6]\n";
+      print $out "$.,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4]\n";
 
     } else {
       my $err = $csv->error_diag;
