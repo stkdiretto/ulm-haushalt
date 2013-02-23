@@ -85,7 +85,7 @@ sub process {
 
       $columns[4] =~ s/-//;
 
-      print $out "$.,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012\n";
+      print $out "$columns[1]$.,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012\n";
 
     } else {
       my $err = $csv->error_diag;
