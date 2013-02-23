@@ -52,6 +52,7 @@ sub process {
  my $teilhh;
  my $vwvId;
  my $vwvName;
+
  while(<CSV>) {
     next if ($. == 1); # skip first line of csv file
     if ($csv->parse($_)) {
@@ -81,6 +82,8 @@ sub process {
       $vwvId = "";                      # This happens with the Investivhaushalt 2011/12. We don't know why this is the case.
       $vwvName = $columns[3];
       }
+
+      $columns[4] =~ s/-//;
 
       print $out "$.,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012\n";
 
