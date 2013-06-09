@@ -34,7 +34,8 @@ my %pdbId = (
 );
 
  open ($out, ">","transformed.csv") or die "something even more terrible happened while opening output files: $!";
- print $out "uid,Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,amount,time\n"; # header line of csv output file
+ print $out "uid,Produktbereich,Produktbereich Langfassung,Produktgruppe,Produktteilhaushalt,Produktteilhaushalt Langfassung,VwV-ID,VwV-Doppik Langfassung,amount,time,direction\n"; # header line of csv output file
+
 
 foreach my $file (@ARGV) {
  process($file);
@@ -52,6 +53,7 @@ sub process {
  my $teilhh;
  my $vwvId;
  my $vwvName;
+ my $counter = 0;
 
  while(<CSV>) {
     next if ($. == 1); # skip first line of csv file
@@ -66,12 +68,12 @@ sub process {
       if ($columns[1] =~ m/-/) {         # if "Produktteilhaushalt" contains a hyphen (needs different treatment otherwise)
         my @pdbpdg = split(/-/,$columns[1]); # split along hyphen
         $pdb = substr($pdbpdg[0],0,2);   # first two characters of first number group is Produktbereich
-        $pdg = substr($pdbpdg[0],2);     # trailing two or more characters is Produktgruppe
-        $teilhh = $pdbpdg[1];            # Teilhaushalt        
+        $pdg = $pdbpdg[0];               # Produktbereich with following two characters is Produktgruppe
+        $teilhh = $pdbpdg[0] . $pdbpdg[1]; # Teilhaushalt        
       } else {                           # Produktteilhaushalt w/out hyphen (don't know the reason for that oO)
         $pdb = substr($columns[1],0,2);  # This is correct
-        $pdg = substr($columns[1],2,2);  # This might also be correct
-        $teilhh = substr($columns[1],5); # This is a guess
+        $pdg = substr($columns[1],0,4);  # This might also be correct
+        $teilhh = $columns[1] ;          # This is a guess
       }
 
       # Split "Kontenbeschreibung nach VwV-Doppik" into numeric ID of transaction and plaintext explanation
@@ -83,9 +85,29 @@ sub process {
       $vwvName = $columns[3];
       }
 
-      $columns[4] =~ s/-//;
 
-      print $out "$columns[1]$.,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012\n";
+
+			if ($vwvId > 0 && $vwvId < 10) { # VwV-ID is 1..9: Ertraege
+			$columns[4] =~ s/-//;
+			print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Ertrag\n";
+
+      $counter += 1;	
+
+			} elsif ($vwvId == 18) { #interne Buchungen
+					if ( $columns[4] > 0 ) { #Ertraege
+			      $columns[4] =~ s/-//;
+						print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Ertrag\n";
+					} else { # Aufwendungen
+						print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Aufwendung\n";
+
+					}
+
+			} else { # VwV-ID is 10...16 or 19..20: Aufwendungen
+			print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Aufwendung\n";
+
+      $counter += 1;	
+			}
+
 
     } else {
       my $err = $csv->error_diag;
