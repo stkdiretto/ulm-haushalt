@@ -94,11 +94,13 @@ sub process {
       $counter += 1;	
 
 			} elsif ($vwvId == 18) { #interne Buchungen
-					if ( $columns[4] > 0 ) { #Ertraege
+					if ( $columns[4] < 0 ) { #Ertraege
 			      $columns[4] =~ s/-//;
 						print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Ertrag\n";
 					} else { # Aufwendungen
 						print $out "$columns[1]$counter,$pdb,\"$pdbId{$pdb}\",$pdg,$teilhh,\"$columns[2]\",$vwvId,\"$vwvName\",$columns[4],2012,Aufwendung\n";
+
+      $counter += 1;	
 
 					}
 
